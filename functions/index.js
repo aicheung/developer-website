@@ -1,10 +1,15 @@
 const functions = require("firebase-functions");
+const admin = require("firebase-admin");
+
+admin.initializeApp();
+
+const database = admin.database();
 
 exports.contact = functions
     .runWith({
       maxInstances: 1,
     })
-    .https.onRequest((request, response) => {
+    .https.onRequest(async (request, response) => {
       const {name, email, message} = request.body;
 
       // Name validation
@@ -22,8 +27,8 @@ exports.contact = functions
 
       // Message validation
       if (!message ||
-         message.trim().length === 0 ||
-         message.trim().length > 5000) {
+      message.trim().length === 0 ||
+      message.trim().length > 5000) {
         response
             .status(400)
             .send(
@@ -32,7 +37,21 @@ exports.contact = functions
         return;
       }
 
-      // If all validations pass, continue processing the form
-      functions.logger.info("Contacted!", request);
-      response.send("Thank you! I will get in touch with you shortly.");
+      // If all validations pass, store the message in the Realtime Database
+      const newMessageRef = database.ref("messages").push();
+      try {
+        await newMessageRef.set({
+          name,
+          email,
+          message,
+          timestamp: Date(),
+        });
+        functions.logger.info("Message saved:", newMessageRef.key);
+        response.send( "Thank you! I will get in touch with you shortly.");
+      } catch (error) {
+        functions.logger.error("Error saving message:", error);
+        response
+            .status(500)
+            .send("Error saving message. Please try again later.");
+      }
     });
