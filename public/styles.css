@@ -61,11 +61,21 @@ p {
     font-size: 18px;
 }
 
+/* Human Touch section */
+#human-touch ul {
+    list-style-position: inside;
+    text-align: left;
+    max-width: 800px;
+    margin: auto;
+}
+
 /* Services section */
 #services ul {
+    list-style-type: none;
     display: flex;
     justify-content: space-around;
     flex-wrap: wrap;
+    padding-left: 0; /* Remove the padding from the left side */
 }
 
 #services li {
@@ -124,4 +134,17 @@ footer {
     color: #ffffff;
     padding: 20px;
     text-align: center;
+}
+
+/* Media query for mobile devices */
+@media (max-width: 768px) {
+    #services ul {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #services li {
+        width: 100%;
+        max-width: 300px;
+    }
 }
