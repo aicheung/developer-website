@@ -117,22 +117,61 @@
         <p>
             If you're interested in working together or have any questions about my services, feel free to get in touch.
         </p>
-        <form>
-            <label for="name">Name:</label>
-            <input type="text" id="name" required>
-            <label for="email">Email:</label>
-            <input type="email" id="email" required>
-            <label for="message">Message:</label>
-            <textarea id="message" required></textarea>
-            <button type="submit">Submit</button>
+        <form id="contact-form">
+          <label for="name">Name:</label>
+          <input type="text" id="name" name="name" required minlength="1">
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" required pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$">
+          <label for="message">Message:</label>
+          <textarea id="message" name="message" required minlength="1" maxlength="5000"></textarea>
+          <button type="submit">Submit</button>
         </form>
+        <p id="form-response" style="display: none;"></p>
     </section>
 
     <footer>
         <p>&copy; Freelance Developer - Chun Yu Cheung. All rights reserved.</p>
         <p><i>This website is created with the assistance of GPT-4.</i></p>
     </footer>
-
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          const contactForm = document.getElementById("contact-form");
+          const formResponse = document.getElementById("form-response");
+      
+          contactForm.addEventListener("submit", async (event) => {
+              event.preventDefault();
+              const formData = new FormData(contactForm);
+              const data = {};
+      
+              for (const [key, value] of formData.entries()) {
+                  data[key] = value;
+              }
+      
+              try {
+                  const response = await fetch("/contact", {
+                      method: "POST",
+                      headers: {
+                          "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify(data),
+                  });
+      
+                  if (!response.ok) {
+                      throw new Error(await response.text());
+                  }
+      
+                  const result = await response.text();
+                  formResponse.innerText = result;
+                  formResponse.style.display = "block";
+                  contactForm.reset();
+              } catch (error) {
+                  console.error("Error while submitting the form:", error);
+                  formResponse.innerText = error.message;
+                  formResponse.style.display = "block";
+              }
+          });
+      });
+    </script>
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         const loadEl = document.querySelector('#load');
